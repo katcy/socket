@@ -11,6 +11,10 @@ socket.on('connection',(soc)=>{
     soc.on('time',(time)=>{ // listen to only current socket
         console.log(time);
     });
+    soc.on('gamePad',(data)=>{
+        console.log(data);
+        socket.emit('toRasp',data);
+    });
 });
 
 http.listen(8080,()=>{
