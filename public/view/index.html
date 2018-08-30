@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+    <head>
+        Basic Express Server
+    </head>
+    <body>
+        <input type="text" id="message"/>
+        <input type="button" id="send" value="send"/>
+            <script src="/socket.io/socket.io.js"></script>
+            <script>
+                let raspPi = io.connect('http://localhost:8181');
+                let gamePad = io.connect('http://localhost:8080');
+                raspPi.emit('time',{Pi: 'To the rasp pi'});
+                gamePad.emit('time',{GPad: 'From th gamepad'});
+            </script>
+    </body>
+</html>
