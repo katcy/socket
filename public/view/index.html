@@ -4,12 +4,90 @@
         Basic Express Server
     </head>
     <body>
-        <input type="text" id="message"/>
-        <input type="button" id="send" value="send"/>
             <script src="/socket.io/socket.io.js"></script>
             <script>
+
+                /*
+                * Port 8080 --> Node Server (index.js) is hosted in a pc or a remote server
+                * This is responsible for hosting html, read and send gamepad data to rasppi bot
+                * 
+                * Port 8181 --> Node Server (app.js) that listens to gamepad data from a bot and performs the actions
+                * 
+                * Gamepad <----> Index.html [gamePad.emit() --> 8080] <----> Index.js
+                *                                                               |
+                *                                                               |(8080)
+                *                                                               v
+                *                               RaspPi Bot<----> App.js <---->Index.html
+                *                                                       (8181)
+                *                                                   [raspPi.emit()]
+                */
+
+                // raspPi --> use it to emit to rasp pi connected to bot
                 let raspPi = io.connect('http://localhost:8181');
+
+                // gamePad --> use it to send gamepad data to the remote server
                 let gamePad = io.connect('http://localhost:8080');
+                
+                // Listens for gamepad connection
+                window.addEventListener('gamepadconnected',(gp)=>{
+                    // armKeys --> keys on the rightside of the console
+                    let armKeys = {
+                        1: 0,
+                        2: 0,
+                        3: 0,
+                        4: 0
+                    };
+                    
+                    // frbckDig --> digital forward and backward; has value ['front','','back']
+                    let frbckDig = '';
+
+                    // steerDig --> digital left and right; has value ['left','','right']
+                    let steerDig = '';
+                    
+                    setInterval(()=>{
+                        // Create a gamepad object
+                        let gp = navigator.getGamepads()[gp.gamepad.index];
+                        
+                        // Assign button values to corresponding armKeys
+                        armKeys['1']=gp.buttons[0].value;
+                        armKeys['2']=gp.buttons[1].value;
+                        armKeys['3']=gp.buttons[2].value;
+                        armKeys['4']=gp.buttons[3].value;
+                        
+                        // Assign values to Arrowkeys
+                        if(Math.round(gp.axes[0]) >0){
+                            steerDig = 'right';
+                        }else if(Math.round(gp.axes[0]) < 0){
+                            steerDig = 'left';
+                        }else{
+                            steerDig = ''
+                        }
+                        
+                        if(Math.round(gp.axes[3]) >0){
+                            frbckDig = 'front';
+                        }else if(Math.round(gp.axes[3]) < 0){
+                            frbckDig = 'back';
+                        }else{
+                            frbckDig = ''
+                        }
+
+                        console.log(armKeys,frbckDig,steerDig);
+
+                        gamePad.emit('gamePad',{
+                            keys:{
+                                arm: armKeys,
+                                yaxis: frbckDig,
+                                xaxis: steerDig
+                            }
+                        });
+                        
+
+                    },1000/24); // read button values at video framerate
+
+                })
+                
+                //Emit GamePad data to RaspPi --> Needs Work
+
                 raspPi.emit('time',{Pi: 'To the rasp pi'});
                 gamePad.emit('time',{GPad: 'From th gamepad'});
             </script>
