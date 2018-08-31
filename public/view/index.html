@@ -1,9 +1,10 @@
 <!doctype html>
 <html>
     <head>
-        Basic Express Server
+        BATMOBILE
     </head>
     <body>
+        <input type="button" value="Arm BATMOBILE" onclick="armBatmobile()"/>
             <script src="/socket.io/socket.io.js"></script>
             <script>
 
@@ -21,9 +22,13 @@
                 *                                                       (8181)
                 *                                                   [raspPi.emit()]
                 */
-
-                // raspPi --> use it to emit to rasp pi connected to bot
-                let raspPi = io.connect('http://localhost:8181');
+                
+                //Activate this only on the BATMOBILE --> to avoid infinite reconnection attempts on the server
+                function armBatmobile(){
+                    // raspPi --> use it to emit to rasp pi connected to bot
+                    let raspPi = io.connect('http://localhost:8181',{reconnectionAttempts: 10});
+                }
+                
 
                 // gamePad --> use it to send gamepad data to the remote server
                 let gamePad = io.connect('http://localhost:8080');
