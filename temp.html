@@ -5,19 +5,27 @@
     </head>
     <body>
            <input type="button" value="gamePad Simulation" onclick="toRasp()"/>
+           <script src="/socket.io/socket.io.js"></script>
             <script>
+                //connect to RaspPi
                 let raspPi = io.connect('http://localhost:8181');
+                //connect to Remote Server
                 let gamePad = io.connect('http://localhost:8080');
-
+                
+                //check connection with server
                 gamePad.on('server',(msg)=>{
                     console.log(msg);
                 });
 
                 function toRasp(){
+                    //emit to PC -->index.js, which will then send to all other node except sender
                     gamePad.emit('gamePad',{key: 'gamePad keys'});
                 }
-
+                
+                //executes on the recepient nodes
                 gamePad.on('toRasp',(data)=>{
+                    console.log(data);
+                    //send the received gamepad values to raspPi-->app.js
                     raspPi.emit('time',data);
                 })
             </script>

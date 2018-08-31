@@ -7,13 +7,14 @@ app.use(express.static('./public/view'));
 
 socket.on('connection',(soc)=>{
     console.log('user connected ');
-    socket.emit('server',{server:'this is from server'}); // broadcast to all sockets
+    socket.emit('server',{server:'Alfred: Connected'}); // broadcast to all sockets
     soc.on('time',(time)=>{ // listen to only current socket
         console.log(time);
     });
     soc.on('gamePad',(data)=>{
-        console.log(data);
-        socket.emit('toRasp',data);
+        //console.log(data);
+        //broadcast to all other browser windows except for the sender
+        soc.broadcast.emit('toRasp',data);
     });
 });
 
